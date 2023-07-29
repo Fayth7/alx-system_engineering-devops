@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Script: 100-port_listening_on_localhost
+# Description: Listens on port 98 on localhost
+
+# Start listening on port 98
+nc -l localhost 98
+
+# End of script

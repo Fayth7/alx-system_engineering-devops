@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# destroying a process even if it protects SIGTERM
+pkill -f 7-highlander
