@@ -1,0 +1,9 @@
+#configure Hostname to connect to a server without Password
+
+Host *
+    PasswordAuthentication no
+
+Host magic-server
+    Hostname 35.174.185.130
+    User ubuntu
+    IdentityFile ~/.ssh/school
