@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# This script configures an Nginx server to perform a permanent redirect.
+
+# Install Nginx (if not already installed)
+apt-get update
+apt-get -y install nginx
+
+# Create a custom content file for the redirection response
+echo "Moved Permanently. Redirecting to https://www.example.com/" > /var/www/html/redirect_me
+
+# Create Nginx configuration for the redirection
+echo "server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/html;
+    index index.html;
+
+    location /redirect_me {
+        return 301 https://www.example.com/;
+    }
+
+    location / {
+        try_files \$uri \$uri/ =404;
+    }
+}" > /etc/nginx/sites-available/default
+
+# Restart Nginx
+/etc/init.d/nginx restart
+
+echo "Nginx configured for redirection."
