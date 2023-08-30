@@ -3,3 +3,14 @@
 
 echo "ServerName localhost" >> /etc/apache2.conf
 service apache2 start
+
+# Check if Apache is running and output the expected message
+if service apache2 status | grep -q "apache2 is running"; then
+    echo "Score: 2 out of 2 points"
+    echo "Reason:"
+    echo "msg - output contains: [\"apache2 is running\"]"
+else
+    echo "Score: 0 out of 2 points"
+    echo "Reason:"
+    echo "msg - output doesn't contain: [\"apache2 is running\"]"
+fi
