@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Script description: Install and configure HAProxy for load balancing
+
+# Update package list and install HAProxy
+sudo apt-get update
+sudo apt-get install haproxy -y
+
+# Configure HAProxy
+echo 'global
+    log /dev/log local0
+    log /dev/log local1 notice
+    chroot /var/lib/haproxy
+    stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
+    stats timeout 30s
+    user haproxy
+    group haproxy
+    daemon
+
+defaults
+    log global
+    mode http
+    option httplog
+    option dontlognull
+    timeout connect 5000
+    timeout client 50000
+    timeout server 50000
+
+frontend web-frontend
+    bind *:80
+    default_backend web-backend
+
+backend web-backend
+    balance roundrobin
+    server web-01 281700-web-01:80 check
+    server web-02 281700-web-02:80 check' | sudo tee /etc/haproxy/haproxy.cfg
+
+# Enable HAProxy init script
+sudo systemctl enable haproxy
+
+# Restart HAProxy to apply the configuration
+sudo systemctl restart haproxy
