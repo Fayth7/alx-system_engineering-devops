@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Script description: Configure Nginx with a custom response header
+
+# Install Nginx
+sudo apt-get update
+sudo apt-get install nginx -y
+
+# Configure Nginx to add a custom response header
+echo 'server {
+    listen 80;
+    server_name localhost;
+
+    location / {
+        proxy_set_header X-Served-By $host;
+        proxy_pass http://backend;
+    }
+
+    location /backend {
+        proxy_set_header X-Served-By $host;
+        proxy_pass http://web-02;
+    }
+}' | sudo tee /etc/nginx/sites-available/custom_response_header
+
+# Create a symbolic link to enable the site
+sudo ln -s /etc/nginx/sites-available/custom_response_header /etc/nginx/sites-enabled/
+
+# Test Nginx configuration
+sudo nginx -t
+
+# Reload Nginx to apply changes
+sudo systemctl reload nginx
