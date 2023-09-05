@@ -29,3 +29,9 @@ sudo nginx -t
 
 # Reload Nginx to apply changes
 sudo systemctl reload nginx
+
+# Check if web-02 server returns a custom X-Served-By header in its response
+response=$(curl -I http://web-02)
+if [[ "$response" == *"X-Served-By"* ]]; then
+    echo "1"  # Print "1" if the custom header is found
+fi
