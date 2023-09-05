@@ -1,41 +1,13 @@
 #!/usr/bin/env bash
-# Script description: Install and configure HAProxy for load balancing
+# Configure Nginx so that its HTTP response contains
+# a custom header
+# Add HAProxy PPA
+sudo apt-get -y install software-properties-common
+sudo add-apt-repository -y ppa:vbernat/haproxy-2.5
+sudo apt-get -y update
 
-# Update package list and install HAProxy
-sudo apt-get update
-sudo apt-get install haproxy -y
-
-# Configure HAProxy
-echo 'global
-    log /dev/log local0
-    log /dev/log local1 notice
-    chroot /var/lib/haproxy
-    stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
-    stats timeout 30s
-    user haproxy
-    group haproxy
-    daemon
-
-defaults
-    log global
-    mode http
-    option httplog
-    option dontlognull
-    timeout connect 5000
-    timeout client 50000
-    timeout server 50000
-
-frontend web-frontend
-    bind *:80
-    default_backend web-backend
-
-backend web-backend
-    balance roundrobin
-    server web-01 54.172.92.53:80 check
-    server web-02 34.207.61.123:80 check' | sudo tee /etc/haproxy/haproxy.cfg
-
-# Enable HAProxy init script
-sudo systemctl enable haproxy
-
-# Restart HAProxy to apply the configuration
-sudo systemctl restart haproxy
+# Install HAProxy
+sudo apt-get -y install haproxy
+sudo sed -i -e '$aENABLED=1\n' /etc/default/haproxy
+sudo sed -i -e '$a\listen http-in\n\tbind :80\n\tbalance roundrobin\n\tserver 281700-web-01 54.172.92.53:80 check\n\tserver 281700-web-02 34.207.61.123:80 check\n' /etc/haproxy/haproxy.cfg
+sudo service haproxy restart
