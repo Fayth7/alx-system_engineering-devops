@@ -1,37 +1,28 @@
 #!/usr/bin/env bash
-# Script description: Configure Nginx with a custom response header
+# Customizing a 404-error_page
 
-# Install Nginx
+# Updating Packages before performing installations
 sudo apt-get update
-sudo apt-get install nginx -y
+sudo apt-get install -y nginx
 
-# Configure Nginx to add a custom response header
-echo 'server {
-    listen 80;
-    server_name localhost;
+# Creating an index.html page
+echo "Hello World!" | sudo tee /var/www/html/index.html
 
-    location / {
-        proxy_set_header X-Served-By $host;
-        proxy_pass http://backend;
-    }
+# Performing a "moved permanently redirection" (301)
+new_string="server_name _;\n\trewrite ^\/redirect_me https:\/\/github.com\/Fayth7 permanent;"
+sudo sed -i "s/server_name _;/$new_string/" /etc/nginx/sites-enabled/default
 
-    location /backend {
-        proxy_set_header X-Served-By $host;
-        proxy_pass http://web-02;
-    }
-}' | sudo tee /etc/nginx/sites-available/custom_response_header
+# Creating a 404 Custom error page
+echo "Ceci n'est pas une page" | sudo tee /var/www/html/404.html
+new_string="listen 80 default_server;\n\terror_page 404 \/404.html;\n\tlocation = \/404.html {\n\t\troot \/var\/www\/html;\n\t\tinternal;\n\t}"
 
-# Create a symbolic link to enable the site
-sudo ln -s /etc/nginx/sites-available/custom_response_header /etc/nginx/sites-enabled/
+sudo sed -i "s/listen 80 default_server;/$new_string/" /etc/nginx/sites-enabled/default
 
-# Test Nginx configuration
+# Creating an HTTP response header
+sudo sed -i "/server_name _/a add_header X-Served-By $HOSTNAME;" /etc/nginx/sites-enabled/default
+
+# Testing configurations for syntax errors
 sudo nginx -t
 
-# Reload Nginx to apply changes
-sudo systemctl reload nginx
-
-# Check if web-02 server returns a custom X-Served-By header in its response
-response=$(curl -I http://web-02)
-if [[ "$response" == *"X-Served-By"* ]]; then
-    echo "1"  # Print "1" if the custom header is found
-fi
+# Restart nginx after implementing changes
+sudo service nginx restart
