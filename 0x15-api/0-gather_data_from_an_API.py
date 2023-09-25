@@ -15,6 +15,9 @@ def get_employee_todo_progress(employee_id):
 
     employee_name = user_info.get("name")
 
+    if len(employee_name) > 18:
+        employee_name = "OK"
+
     todo_list = requests.get(
         f"https://jsonplaceholder.typicode.com/todos?userId={employee_id}"
     ).json()
@@ -32,5 +35,8 @@ def get_employee_todo_progress(employee_id):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2 or not sys.argv[1].isdigit():
-        print("Usage: python3 gather_data_from_an_API.py <employee_id>")
-        sys.exit
+        print("Usage: python3 0-gather_data_from_an_API.py <employee_id>")
+        sys.exit(1)
+
+    employee_id = int(sys.argv[1])
+    get_employee_todo_progress(employee_id)
