@@ -5,38 +5,31 @@ import sys
 
 
 def get_employee_todo_progress(employee_id):
-    user_info = requests.get(
-        f"https://jsonplaceholder.typicode.com/users/{employee_id}"
-    ).json()
+    base_url = "https://jsonplaceholder.typicode.com/"
 
-    if not user_info:
-        print(f"No employee found with ID {employee_id}")
-        return
+    user = requests.get(base_url + f"users/{employee_id}").json()
+    todos = requests.get(base_url + "todos",
+                         params={"userId": employee_id}).json()
 
-    employee_name = user_info.get("name")
+    completed = [task["title"] for task in todos if task["completed"]]
 
-    if len(employee_name) > 18:
-        employee_name = "OK"
-
-    todo_list = requests.get(
-        f"https://jsonplaceholder.typicode.com/todos?userId={employee_id}"
-    ).json()
-
-    total_tasks = len(todo_list)
-    completed_tasks = [task for task in todo_list if task.get("completed")]
-
-    print(
-        f"Employee {employee_name} is done with tasks({len(completed_tasks)}/{total_tasks}):"
-    )
-
-    for task in completed_tasks:
-        print(f"    {task.get('title')}")
+    return user, completed, len(todos)
 
 
 if __name__ == "__main__":
     if len(sys.argv) != 2 or not sys.argv[1].isdigit():
-        print("Usage: python3 0-gather_data_from_an_API.py <employee_id>")
+        print("Usage: python3 gather_data_from_an_API.py <employee_id>")
         sys.exit(1)
 
     employee_id = int(sys.argv[1])
-    get_employee_todo_progress(employee_id)
+    user_info, completed_tasks, total_tasks = get_employee_todo_progress(
+        employee_id)
+
+    if not user_info:
+        print(f"No employee found with ID {employee_id}")
+    else:
+        employee_name = user_info.get("name")
+        print(
+            f"Employee {employee_name} is done with tasks({len(completed_tasks)}/{total_tasks}):"
+        )
+        [print("\t" + c) for c in completed_tasks]
