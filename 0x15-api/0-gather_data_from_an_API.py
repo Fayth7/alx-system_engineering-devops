@@ -33,6 +33,7 @@ if __name__ == "__main__":
         print(f"No employee found with ID {employee_id}")
     else:
         print(
-            f"Employee Name: {employee_name}OK is done with tasks({len(completed_tasks)}/{total_tasks}):"
+            f"Employee Name: {employee_name} OK is done with tasks"
+            f"({len(completed_tasks)}/{total_tasks}):"
         )
         [print("\t" + c) for c in completed_tasks]
